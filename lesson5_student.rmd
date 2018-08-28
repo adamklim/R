@@ -318,23 +318,53 @@ Notes: if working with multiple observations of same units work with some sample
 set.seed(4230)
 
 sample.ids <- sample(levels(yo$id), 16)
-
+sample.ids
+```
+```{r}
+ggplot(subset(yo, id %in% sample.ids), #the way to subset the data using another set, like join in sql
+       aes(time,price))+
+  facet_wrap( ~ id)+
+  geom_line()+
+  geom_point(aes(size=all.purchases), pch=1)
 ```
 
 ***
 
 ### The Limits of Cross Sectional Data
-Notes:
+Notes: we were faceting over households with yo data
+
 
 ***
 
 ### Many Variables
-Notes:
+Notes: use to discover relationships between variables we were not interested in
 
 ***
 
 ### Scatterplot Matrix
-Notes:
+Notes: 
+```{r}
+install.packages("GGally")
+library(GGally)
+theme_set(theme_minimal(20))
+
+set.seed(1836)
+pf_subset <-pf[,c(2:15)]
+names(pf_subset)
+```
+```{r}
+#this will take plenty time to run
+ggpairs(pf_subset[sample.int(nrow(pf_subset),1000), ])
+#explore the ggpairs syntax
+
+#if too much, one can subset:
+pf_subset = pf[, c('age', 'dob_year', 'dob_month', 'gender', 'tenure')]
+#OR
+pf_subset <- subset(pf, select = -c(userid, year_joined, year_joined_bucket))
+#The - sign in the "select" value indicates all but the listed columns.
+
+```
+
 
 ***
 
@@ -352,10 +382,12 @@ colnames(nci) <- c(1:64)
 ```
 
 ```{r}
+library(reshape2)
 nci.long.samp <- melt(as.matrix(nci[1:200,]))
 names(nci.long.samp) <- c("gene", "case", "value")
 head(nci.long.samp)
-
+```
+```{r heatmap}
 ggplot(aes(y = gene, x = case, fill = value),
   data = nci.long.samp) +
   geom_tile() +

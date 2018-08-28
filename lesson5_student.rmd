@@ -67,12 +67,13 @@ ggplot(data=pf.fc_by_age_gender, aes(age,median_friend_count))+
 ***
 
 ### Thinking in Ratios
-Notes:
+Notes: 
 
 ***
 
 ### Wide and Long Format
-Notes:
+Notes: take repeating values from one column and use them as separate columns (e.g. gender - male/female)
+can be done with reshape2 or with tidyr
 
 ***
 
@@ -169,22 +170,34 @@ ggplot(data=subset(pf, !is.na(pf$year_joined_bucket)),
 ***
 
 ### Friending Rate
-Notes:
+Notes: find friend_count / tenure ratio, median, mean, for tenure >0
 
 ```{r Friending Rate}
-
+with(subset(pf, tenure>0), summary(friend_count/tenure))
 ```
 
 ***
 
 ### Friendships Initiated
-Notes:
+Notes: plot friendships initiated/day vs. tenure
+use: age, tenure, friendships_initiated and year_joined, bucket)
 
 What is the median friend rate?
 
 What is the maximum friend rate?
 
 ```{r Friendships Initiated}
+ggplot(data=subset(pf, tenure>0),
+       aes(tenure,friendships_initiated/tenure))+
+  geom_line(aes(color=year_joined_bucket), 
+            stat = 'summary',
+            fun.y=mean)
+
+
+#make it smooth:
+ggplot(data=subset(pf, tenure>0),
+       aes(tenure,friendships_initiated/tenure))+
+  geom_smooth(aes(color=year_joined_bucket))
 
 ```
 
@@ -197,7 +210,7 @@ Notes:
 
 ggplot(aes(x = tenure, y = friendships_initiated / tenure),
        data = subset(pf, tenure >= 1)) +
-  geom_line(aes(color = year_joined.bucket),
+  geom_line(aes(color = year_joined_bucket),
             stat = 'summary',
             fun.y = mean)
 
@@ -237,7 +250,21 @@ Notes:
 Notes:
 
 ```{r Histograms Revisited}
+yo <- read.csv('yogurt.csv')
+str(yo)
+yo$id <- factor(yo$id)
+str(yo)
 
+install.packages("tidyr")
+library(ggplot2)
+
+ggplot(data=yo, aes(x=price))+
+  geom_histogram()
+
+qplot(data = yo, x=price, color = I('black'), fill = I('#099DD9'))
+```
+```{r}
+head(yo)
 ```
 
 ***
@@ -246,6 +273,20 @@ Notes:
 Notes:
 
 ```{r Number of Purchases}
+summary(yo)
+#number of unique prices
+length(unique(yo$price))
+#let's list the unique prices
+table(yo$price)
+
+#we know separate purchse/flavor, per household, at given date, create variable that combines values from several columns (flavors of yogurth)
+#use transform
+?transform
+yo <- transform(yo, all.purchases = strawberry+blueberry+pina.colada+plain+mixed.berry)
+ str(yo)
+#alternate verbose version
+ yo$all.purchases <- yo$strawberry + yo$blueberry + yo$pina.colada + yo$plain + yo$mixed.berry
+
 
 ```
 
@@ -255,19 +296,28 @@ Notes:
 Notes:
 
 ```{r Prices over Time}
-
+qplot(data = yo, x=all.purchases, color = I('black'), fill = I('#099DD9'), binwidth=1)
+```
+```{r}
+#price over time
+ggplot(yo,aes(time,price))+
+  geom_point(alpha=.3, shape=21)
 ```
 
 ***
 
 ### Sampling Observations
-Notes:
+Notes: if working with multiple observations of same units work with some samples of those units, to see e.g. between household variation
 
 ***
 
 ### Looking at Samples of Households
 
 ```{r Looking at Sample of Households}
+?set.seed
+set.seed(4230)
+
+sample.ids <- sample(levels(yo$id), 16)
 
 ```
 

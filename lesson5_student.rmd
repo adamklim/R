@@ -1,0 +1,325 @@
+Lesson 5
+========================================================
+
+### Multivariate Data
+Notes:
+
+***
+
+### Moira Perceived Audience Size Colored by Age
+Notes:
+
+***
+
+### Third Qualitative Variable
+Notes:
+
+```{r Third Qualitative Variable}
+
+ggplot(data=subset(pf, !is.na(gender)),aes(gender,age))+
+  geom_boxplot()+
+  stat_summary(fun.y = mean, geom='point',shape=4)
+
+ggplot(data=subset(pf, !is.na(gender)),aes(age,friend_count))+
+  geom_line(aes(color=gender), stat = 'summary', fun.y=median)
+
+
+pf.fc_by_age_gender <- pf %>%
+  filter(!is.na(gender)) %>%
+  group_by(age, gender) %>%
+  summarise(mean_friend_count = mean(friend_count),
+            median_friend_count = median(friend_count),
+            n = n()) %>%
+  ungroup() %>% # one grouping will be removed by <summarise>, need to remove second
+  arrange(age)
+
+head(pf.fc_by_age_gender)
+```
+```{r}
+ggplot(data=subset(pf, !is.na(gender)),aes(age,friend_count))+
+  geom_line(aes(color=gender), stat = 'summary', fun.y=median)
+```
+```{r}
+library(dplyr)
+#chaining functions together
+pf.fc_by_age_gender <- pf %>%
+  filter(!is.na(gender)) %>%
+  group_by(age, gender) %>%
+  summarise(mean_friend_count = mean(friend_count),
+            median_friend_count = median(friend_count),
+            n = n()) %>%
+  ungroup() %>% # one grouping will be removed by <summarise>, need to remove second
+  arrange(age)
+
+head(pf.fc_by_age_gender)
+```
+
+***
+
+### Plotting Conditional Summaries
+Notes:
+
+```{r Plotting Conditional Summaries}
+ggplot(data=pf.fc_by_age_gender, aes(age,median_friend_count))+
+  geom_line(aes(color=gender))
+```
+
+***
+
+### Thinking in Ratios
+Notes:
+
+***
+
+### Wide and Long Format
+Notes:
+
+***
+
+### Reshaping Data
+Notes:
+
+```{r}
+install.packages('reshape2')
+library(reshape2)
+
+pf.fc_by_age_gender_wide <-dcast(pf.fc_by_age_gender,
+                                 age ~ gender,
+                                 value.var = 'median_friend_count')
+
+head(pf.fc_by_age_gender_wide)
+melt(pf.fc_by_age_gender_wide)
+
+```
+
+```{r reshape with tidyr}
+library(tidyr)
+
+spread(subset(pf.fc_by_age_gender,
+              select = c('gender','age','median_friend_count')),
+       gender,median_friend_count)
+```
+
+***
+
+### Ratio Plot
+Notes:plot ratio of female to male meddian friend counts with new dataframe,
+include horisontal line at intercept = 1, make it dashed
+
+```{r Ratio Plot}
+ggplot(data=pf.fc_by_age_gender_wide,aes(age, female/male))+
+  geom_line()+
+  geom_hline(yintercept = 1, linetype=2, alpha=.7) #horizontal line
+```
+
+***
+
+### Third Quantitative Variable
+Notes: create var year joined, using tenure (days), and 2014 as reference year
+
+```{r Third Quantitative Variable}
+pf$year_joined <- floor(2014 - pf$tenure/365)
+
+```
+
+***
+
+### Cut a Variable
+Notes: cut the variable year joined into buckets by age (group couple years together)
+
+```{r Cut a Variable}
+summary(pf$year_joined)
+table(pf$year_joined)
+```
+```{r}
+?cut
+pf$year_joined_bucket <-cut(pf$year_joined,
+                            breaks = c(2004, 2009, 2011, 2012,2014)
+                            )
+
+```
+
+***
+
+### Plotting it All Together
+Notes:
+
+```{r Plotting it All Together}
+ggplot(data=subset(pf, !is.na(pf$year_joined_bucket)),
+       aes(age,friend_count))+
+  geom_line(aes(color=year_joined_bucket),
+            stat = 'summary',
+            fun.y=median)
+```
+Users with longer tenure have more friends, with exception of old ones
+***
+
+### Plot the Grand Mean
+Notes:
+
+```{r Plot the Grand Mean}
+ggplot(data=subset(pf, !is.na(pf$year_joined_bucket)),
+       aes(age,friend_count))+
+  geom_line(aes(color=year_joined_bucket), 
+            stat = 'summary',
+            fun.y=mean)+ #means for separate buckets
+  geom_line(stat = 'summary', fun.y = 'mean', linetype=2) #grand mean (all data)
+```
+
+***
+
+### Friending Rate
+Notes:
+
+```{r Friending Rate}
+
+```
+
+***
+
+### Friendships Initiated
+Notes:
+
+What is the median friend rate?
+
+What is the maximum friend rate?
+
+```{r Friendships Initiated}
+
+```
+
+***
+
+### Bias-Variance Tradeoff Revisited
+Notes:
+
+```{r Bias-Variance Tradeoff Revisited}
+
+ggplot(aes(x = tenure, y = friendships_initiated / tenure),
+       data = subset(pf, tenure >= 1)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = 'summary',
+            fun.y = mean)
+
+ggplot(aes(x = 7 * round(tenure / 7), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+ggplot(aes(x = 30 * round(tenure / 30), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+ggplot(aes(x = 90 * round(tenure / 90), y = friendships_initiated / tenure),
+       data = subset(pf, tenure > 0)) +
+  geom_line(aes(color = year_joined.bucket),
+            stat = "summary",
+            fun.y = mean)
+
+```
+
+***
+
+### Sean's NFL Fan Sentiment Study
+Notes:
+
+***
+
+### Introducing the Yogurt Data Set
+Notes:
+
+***
+
+### Histograms Revisited
+Notes:
+
+```{r Histograms Revisited}
+
+```
+
+***
+
+### Number of Purchases
+Notes:
+
+```{r Number of Purchases}
+
+```
+
+***
+
+### Prices over Time
+Notes:
+
+```{r Prices over Time}
+
+```
+
+***
+
+### Sampling Observations
+Notes:
+
+***
+
+### Looking at Samples of Households
+
+```{r Looking at Sample of Households}
+
+```
+
+***
+
+### The Limits of Cross Sectional Data
+Notes:
+
+***
+
+### Many Variables
+Notes:
+
+***
+
+### Scatterplot Matrix
+Notes:
+
+***
+
+### Even More Variables
+Notes:
+
+***
+
+### Heat Maps
+Notes:
+
+```{r}
+nci <- read.table("nci.tsv")
+colnames(nci) <- c(1:64)
+```
+
+```{r}
+nci.long.samp <- melt(as.matrix(nci[1:200,]))
+names(nci.long.samp) <- c("gene", "case", "value")
+head(nci.long.samp)
+
+ggplot(aes(y = gene, x = case, fill = value),
+  data = nci.long.samp) +
+  geom_tile() +
+  scale_fill_gradientn(colours = colorRampPalette(c("blue", "red"))(100))
+```
+
+
+***
+
+### Analyzing Three of More Variables
+Reflection:
+
+***
+
+Click **KnitHTML** to see all of your hard work and to have an html
+page of this lesson, your answers, and your notes!
+

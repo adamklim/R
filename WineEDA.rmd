@@ -1,0 +1,263 @@
+EDA: Vihno Verde by AK
+========================================================
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+
+library(ggplot2)
+library(cowplot)
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+verde = read.csv("wineQualityWhites.csv")
+
+```
+
+> Vinho Verde is by far my most favorite wine, especially white variety.
+
+   Input variables (based on physicochemical tests):
+   1 - fixed acidity (tartaric acid - g / dm^3)
+   2 - volatile acidity (acetic acid - g / dm^3)
+   3 - citric acid (g / dm^3)
+   4 - residual sugar (g / dm^3)
+   5 - chlorides (sodium chloride - g / dm^3
+   6 - free sulfur dioxide (mg / dm^3)
+   7 - total sulfur dioxide (mg / dm^3)
+   8 - density (g / cm^3)
+   9 - pH
+   10 - sulphates (potassium sulphate - g / dm3)
+   11 - alcohol (% by volume)
+   Output variable (based on sensory data): 
+   12 - quality (score between 0 and 10)
+
+
+
+
+# Univariate Plots Section
+
+## Data structure exploration
+
+```{r}
+dim(verde)
+```
+
+This dataset includes 13 variables with 4898 observations.
+
+
+```{r echo=FALSE, Summaries}
+str(verde)
+```
+
+Based on the initial data description, vatiable 'quality' is a categorical 
+parameter. In this dataset it's represented as integer, so I am going to convert
+it to a factor.
+
+
+```{r}
+verde$quality <- factor(verde$quality)
+```
+
+```{r}
+summary(verde)
+```
+
+Apart from quality, the remaining categories have continuous values.
+Column X is a counter and will not be considered in the analysis.
+Citric.acid has minimum value of 0, which may be an error.
+
+Also, since wines are usually classified based on their sweetnes.
+An excellent guide how to assess sweetness of wine, depending on pH, sugar and
+acid content.
+https://drinkriesling.com/tasteprofile/thescale
+
+
+```{r}
+#  sugar/acid ratio
+verde$sugar_acid.ratio <- verde$residual.sugar/(verde$fixed.acidity +
+                                                  verde$volatile.acidity +
+                                                  verde$citric.acid)
+```
+
+```{r}
+summary(verde$sugar_acid.ratio)
+```
+
+```{r}
+verde$sweetnes <- with (verde, ifelse(sugar_acid.ratio<1
+                                      ,ifelse(pH<3.1,"Extra Dry"
+                                             ,ifelse(pH<3.3,"Dry"
+                                                    ,ifelse(pH<3.5,"Medium Dry","Medium Sweet")
+                                                    )
+                                             )
+                                      ,ifelse(sugar_acid.ratio<=2
+                                              ,ifelse(pH<=2.9,"Dry"
+                                                     ,ifelse(pH<3.3,"Medium Dry","Medium Sweet")
+                                                     )
+                                              ,ifelse(sugar_acid.ratio<4.1
+                                                      ,ifelse(pH<=2.8,"Dry"
+                                                             ,ifelse(pH<=2.9,"Medium Dry"
+                                                                    ,ifelse(pH<3.3,"Medium Sweet","Sweet")
+                                                                    )
+                                                             )
+                                                      ,ifelse(pH<=2.8,"Medium Dry"
+                                                              ,ifelse(pH<=2.9,"Medium Sweet","Sweet")
+                                                              )
+                                                      )
+                                              )
+                                      )
+                        )
+                        
+```
+
+```{r}
+verde$sweetnes <- with(verde, factor(sweetnes, 
+                                  levels=c("Extra Dry", "Dry", "Medium Dry", "Medium Sweet", "Sweet"),
+                                  ordered=TRUE))
+```
+
+
+```{r}
+summary(verde$sweetnes)
+```
+
+
+### Initial plots are made with qplot where possible, to take benefit of short syntax
+
+```{r}
+qplot(data=verde, quality)
+```
+
+```{r}
+qplot(data = verde,sweetnes)
+```
+
+
+```{r echo=FALSE, Univariate_Plots}
+qplot()
+```
+
+> **Tip**: Make sure that you leave a blank line between the start / end of
+each code block and the end / start of your Markdown text so that it is
+formatted nicely in the knitted text. Note as well that text on consecutive
+lines is treated as a single space. Make sure you have a blank line between
+your paragraphs so that they too are formatted for easy readability.
+
+# Univariate Analysis
+
+> **Tip**: Now that you've completed your univariate explorations, it's time to
+reflect on and summarize what you've found. Use the questions below to help you
+gather your observations and add your own if you have other thoughts!
+
+### What is the structure of your dataset?
+
+### What is/are the main feature(s) of interest in your dataset?
+
+### What other features in the dataset do you think will help support your \
+investigation into your feature(s) of interest?
+
+### Did you create any new variables from existing variables in the dataset?
+
+### Of the features you investigated, were there any unusual distributions? \
+Did you perform any operations on the data to tidy, adjust, or change the form \
+of the data? If so, why did you do this?
+
+
+# Bivariate Plots Section
+
+> **Tip**: Based on what you saw in the univariate plots, what relationships
+between variables might be interesting to look at in this section? Don't limit
+yourself to relationships between a main output feature and one of the
+supporting variables. Try to look at relationships between supporting variables
+as well.
+
+```{r echo=FALSE, Bivariate_Plots}
+
+```
+
+# Bivariate Analysis
+
+> **Tip**: As before, summarize what you found in your bivariate explorations
+here. Use the questions below to guide your discussion.
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. How did the feature(s) of interest vary with other features in \
+the dataset?
+
+### Did you observe any interesting relationships between the other features \
+(not the main feature(s) of interest)?
+
+### What was the strongest relationship you found?
+
+
+# Multivariate Plots Section
+
+> **Tip**: Now it's time to put everything together. Based on what you found in
+the bivariate plots section, create a few multivariate plots to investigate
+more complex interactions between variables. Make sure that the plots that you
+create here are justified by the plots you explored in the previous section. If
+you plan on creating any mathematical models, this is the section where you
+will do that.
+
+```{r echo=FALSE, Multivariate_Plots}
+
+```
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. Were there features that strengthened each other in terms of \
+looking at your feature(s) of interest?
+
+### Were there any interesting or surprising interactions between features?
+
+### OPTIONAL: Did you create any models with your dataset? Discuss the \
+strengths and limitations of your model.
+
+------
+
+# Final Plots and Summary
+
+> **Tip**: You've done a lot of exploration and have built up an understanding
+of the structure of and relationships between the variables in your dataset.
+Here, you will select three plots from all of your previous exploration to
+present here as a summary of some of your most interesting findings. Make sure
+that you have refined your selected plots for good titling, axis labels (with
+units), and good aesthetic choices (e.g. color, transparency). After each plot,
+make sure you justify why you chose each plot by describing what it shows.
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+
+```
+
+### Description One
+
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+
+```
+
+### Description Two
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+
+```
+
+### Description Three
+
+------
+
+# Reflection
+
+> **Tip**: Here's the final step! Reflect on the exploration you performed and
+the insights you found. What were some of the struggles that you went through?
+What went well? What was surprising? Make sure you include an insight into
+future work that could be done with the dataset.
+
+> **Tip**: Don't forget to remove this, and the other **Tip** sections before
+saving your final work and knitting the final report!

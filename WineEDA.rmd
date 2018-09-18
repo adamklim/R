@@ -1,18 +1,19 @@
-EDA: Vihno Verde by AK
+Vihno Verde - EDA by Adam Klimiuk
 ========================================================
 
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
-
+install.packages("ggthemes")
 library(ggplot2)
 library(cowplot)
+library(ggthemes)
+library(gridExtra)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
 # Load the Data
 verde = read.csv("wineQualityWhites.csv")
-
 ```
 
 > Vinho Verde is by far my most favorite wine, especially white variety.
@@ -33,13 +34,11 @@ verde = read.csv("wineQualityWhites.csv")
    12 - quality (score between 0 and 10)
 
 
-
-
 # Univariate Plots Section
 
 ## Data structure exploration
 
-```{r}
+```{r echo=FALSE}
 dim(verde)
 ```
 
@@ -48,6 +47,17 @@ This dataset includes 13 variables with 4898 observations.
 
 ```{r echo=FALSE, Summaries}
 str(verde)
+```
+
+
+```{r}
+summary(verde)
+```
+
+Column X is contains order numbers, can be removed.
+
+```{r}
+verde <- subset(verde,select = -c(X))
 ```
 
 Based on the initial data description, vatiable 'quality' is a categorical 
@@ -59,9 +69,8 @@ it to a factor.
 verde$quality <- factor(verde$quality)
 ```
 
-```{r}
-summary(verde)
-```
+
+### New columns
 
 Apart from quality, the remaining categories have continuous values.
 Column X is a counter and will not be considered in the analysis.
@@ -80,9 +89,6 @@ verde$sugar_acid.ratio <- verde$residual.sugar/(verde$fixed.acidity +
                                                   verde$citric.acid)
 ```
 
-```{r}
-summary(verde$sugar_acid.ratio)
-```
 
 ```{r}
 verde$sweetnes <- with (verde, ifelse(sugar_acid.ratio<1
@@ -111,32 +117,39 @@ verde$sweetnes <- with (verde, ifelse(sugar_acid.ratio<1
                         
 ```
 
-```{r}
+```{r echo=FALSE}
 verde$sweetnes <- with(verde, factor(sweetnes, 
                                   levels=c("Extra Dry", "Dry", "Medium Dry", "Medium Sweet", "Sweet"),
                                   ordered=TRUE))
 ```
 
 
-```{r}
+```{r echo=FALSE}
+summary(verde$sugar_acid.ratio)
+```
+
+```{r echo=FALSE}
 summary(verde$sweetnes)
 ```
 
 
-### Initial plots are made with qplot where possible, to take benefit of short syntax
+### Initial plots
+
+For a quick overview I am going to plot all columns using qplot in a loop.
+The advantage of using qplot is that it will decide by itself if to plot
+histogram or bar chart depenting on input data.
+
+```{r, warning=FALSE, message=FALSE, Univariate_Plots}
+for (i in names(verde)){
+  print(qplot(data = verde, verde[,i], xlab=i, bins=200))
+}
+```
+
 
 ```{r}
-qplot(data=verde, quality)
+qplot(data=verde, sugar_acid.ratio, bins=1000)
 ```
 
-```{r}
-qplot(data = verde,sweetnes)
-```
-
-
-```{r echo=FALSE, Univariate_Plots}
-qplot()
-```
 
 > **Tip**: Make sure that you leave a blank line between the start / end of
 each code block and the end / start of your Markdown text so that it is
@@ -261,3 +274,17 @@ future work that could be done with the dataset.
 
 > **Tip**: Don't forget to remove this, and the other **Tip** sections before
 saving your final work and knitting the final report!
+
+
+
+
+
+### other ways to handle code:
+for (i in names(subset(verde,select = -c(quality,sweetnes)))){
+  print(assign(paste("h",grep(i,colnames(verde)), sep = ""),ggplot(data = verde, aes(verde[,i]))+geom_histogram() + xlab(i)))
+  }
+
+
+for (i in names(verde)){
+  print(assign(paste("h",grep(i,colnames(verde)), sep = ""),qplot(data = verde, verde[,i], xlab=i)))
+}

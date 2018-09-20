@@ -1,5 +1,9 @@
 Lesson 5
 ========================================================
+```
+{r, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
 
 ### Multivariate Data
 Notes:
@@ -14,10 +18,14 @@ Notes:
 ### Third Qualitative Variable
 Notes:
 
-```{r Third Qualitative Variable}
+```{r Third Qualitative Variable} 
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+library(ggplot2)
+library(dplyr)
+library(alr3)
 
-ggplot(data=subset(pf, !is.na(gender)),aes(gender,age))+
-  geom_boxplot()+
+ggplot(data=subset(pf, !is.na(gender)),aes(gender,age))  +
+  geom_boxplot() +
   stat_summary(fun.y = mean, geom='point',shape=4)
 
 ggplot(data=subset(pf, !is.na(gender)),aes(age,friend_count))+
@@ -119,6 +127,7 @@ ggplot(data=pf.fc_by_age_gender_wide,aes(age, female/male))+
 Notes: create var year joined, using tenure (days), and 2014 as reference year
 
 ```{r Third Quantitative Variable}
+
 pf$year_joined <- floor(2014 - pf$tenure/365)
 
 ```
@@ -207,7 +216,6 @@ ggplot(data=subset(pf, tenure>0),
 Notes:
 
 ```{r Bias-Variance Tradeoff Revisited}
-
 ggplot(aes(x = tenure, y = friendships_initiated / tenure),
        data = subset(pf, tenure >= 1)) +
   geom_line(aes(color = year_joined_bucket),

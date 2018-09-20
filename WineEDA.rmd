@@ -4,7 +4,6 @@ Vihno Verde - EDA by Adam Klimiuk
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
-install.packages("ggthemes")
 library(ggplot2)
 library(cowplot)
 library(ggthemes)

@@ -9,7 +9,9 @@ Notes: no notes here
 ### Scatterplot Review
 
 ```{r Scatterplot Review}
-rm(list=ls()) #removes everything
+
+
+
 data("diamonds")
 str(diamonds)
 ```

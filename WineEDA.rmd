@@ -140,9 +140,21 @@ histogram or bar chart depenting on input data.
 
 ```{r, warning=FALSE, message=FALSE, Univariate_Plots}
 for (i in names(verde)){
-  print(qplot(data = verde, verde[,i], xlab=i, bins=200))
+  print(qplot(data = verde, verde[,i], xlab=i, bins=100))
 }
 ```
+
+Most parameters have normal distribution, with the exception of residual.sugar
+and newly created sugar_acid.ratio. 
+I will use log transformation to normailze data distribution for residual.sugar.
+Since the sugar_acid.ratio was a helper variable created to easily categorise 
+wines by their perceived sweetnes, I will not be using this variable in further analysis.
+
+
+```{r}
+ggplot(data = verde, aes(residual.sugar))+geom_histogram(bins=100)+scale_x_log10()
+```
+
 
 
 ```{r}
